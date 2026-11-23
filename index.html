@@ -144,6 +144,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
 .ticket .fine { border-top: 2px dashed var(--line); padding: 10px 16px 14px; font-size: .8rem; color: var(--muted); }
 .stamp { font-family: var(--display); color: var(--cherry); border: 3px solid var(--cherry); border-radius: 10px; padding: 2px 12px; transform: rotate(-8deg); font-size: 1.2rem; display: inline-block; }
 .save-note { font-size: .8rem; color: var(--muted); }
+#savedImg { width: 100%; border-radius: 16px; border: 2px solid var(--line); }
 
 
 .confetti { position: fixed; top: -20px; width: 10px; height: 14px; z-index: 5; pointer-events: none; animation: fall linear forwards; }
@@ -189,6 +190,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
 </svg>
 </template>
 
+<script src="html2canvas.min.js"></script>
 <script>
 (() => {
   // ---------- state ----------
@@ -484,14 +486,43 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       </div>
       <div class="dogslot"></div>
       <p class="hand">see you soon, Anna 💕 – Joonas</p>
-      <p class="save-note" id="saveNote" aria-live="polite">Sending your booking to me…</p>
-      <div id="fallback" class="field" hidden>
+      <button class="btn" type="button" id="saveImg" data-html2canvas-ignore>Save the confirmation 📸</button>
+      <div id="savedWrap" class="field" hidden data-html2canvas-ignore>
+        <p class="save-note">Press and hold the image to save it 👇</p>
+        <img id="savedImg" alt="Date booking confirmation">
+      </div>
+      <p class="save-note" id="saveNote" aria-live="polite" data-html2canvas-ignore>Sending your booking to me…</p>
+      <div id="fallback" class="field" hidden data-html2canvas-ignore>
         <a class="btn" id="dm" href="https://ig.me/m/sirjoonas" target="_blank" rel="noopener" style="text-decoration:none;align-self:center">Send it on Instagram 💌</a>
         <label class="label" for="msg">Your booking message</label><textarea id="msg" readonly rows="6"></textarea>
       </div>
     </section>`);
     const d = dog("happy"); d.style.width = "120px";
     wrap.querySelector(".dogslot").appendChild(d);
+    const saveBtn = wrap.querySelector("#saveImg");
+    saveBtn.addEventListener("click", async () => {
+      saveBtn.disabled = true; saveBtn.textContent = "Making your ticket…";
+      try {
+        const canvas = await html2canvas(card, { scale: 2, backgroundColor: "#fffafb",
+          onclone: (doc) => { const st = doc.createElement("style"); st.textContent = "*{animation:none!important;transition:none!important}"; doc.head.appendChild(st); } });
+        const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
+        const file = new File([blob], `date-with-joonas-${S.ref}.png`, { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try { await navigator.share({ files: [file], title: "Date confirmation 💌" }); }
+          catch (e) { if (e.name !== "AbortError") throw e; }
+        } else {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+        }
+        // also show the image, so press-and-hold works in in-app browsers
+        wrap.querySelector("#savedImg").src = canvas.toDataURL("image/png");
+        wrap.querySelector("#savedWrap").hidden = false;
+        saveBtn.textContent = "Saved 💕";
+      } catch (e) {
+        saveBtn.disabled = false; saveBtn.textContent = "Save the confirmation 📸";
+        noteEl.textContent = "Couldn't make the image. A screenshot works too 📸";
+      }
+    });
     const noteEl = wrap.querySelector("#saveNote"), fb = wrap.querySelector("#fallback"), ta = wrap.querySelector("#msg");
     const msg = "💌 Date booking\n" + summary();
     ta.value = msg;
