@@ -97,10 +97,11 @@ p { margin: 0; max-width: 34ch; }
 
 .choices { position: relative; width: 100%; min-height: 130px; display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; }
 button { font: inherit; cursor: pointer; border: 0; }
+button { touch-action: manipulation; }
 button:focus-visible, .chip:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
 .btn {
   background: var(--cherry); color: #fff; font-weight: 800; font-size: 1.1rem;
-  padding: 14px 30px; border-radius: 999px;
+  padding: .8em 1.7em; border-radius: 999px;
   box-shadow: 0 6px 0 var(--cherry-deep);
   transition: transform .15s, box-shadow .15s;
 }
@@ -282,22 +283,25 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
 
     function grow() {
       yesScale = Math.min(yesScale + .15, 1.7);
-      yes.style.transform = `scale(${yesScale})`;
+      yes.style.fontSize = `${1.1 * yesScale}rem`;
       d.classList.add("sad");
+    }
+    // Move the No button to a random spot in the box that doesn't overlap the (scaled) Yes button.
+    function hop() {
+      no.classList.add("runaway");
+      const b = box.getBoundingClientRect(), y = yes.getBoundingClientRect(), n = no.getBoundingClientRect();
+      const yr = { l: y.left - b.left - 8, t: y.top - b.top - 8, r: y.right - b.left + 8, btm: y.bottom - b.top + 8 };
+      let x = 0, top = 0;
+      for (let i = 0; i < 40; i++) {
+        x = Math.random() * Math.max(b.width - n.width, 0);
+        top = Math.random() * Math.max(b.height - n.height, 0);
+        if (x + n.width < yr.l || x > yr.r || top + n.height < yr.t || top > yr.btm) break;
+      }
+      no.style.left = x + "px"; no.style.top = top + "px";
     }
     function runAway() {
       S.noAttempts++;
-      no.classList.add("runaway");
-      const bw = box.clientWidth, bh = box.clientHeight;
-      const nw = no.offsetWidth, nh = no.offsetHeight;
-      const yr = { l: yes.offsetLeft, t: yes.offsetTop, w: yes.offsetWidth, h: yes.offsetHeight };
-      let x, y, tries = 0;
-      do {
-        x = Math.random() * Math.max(bw - nw, 0);
-        y = Math.random() * Math.max(bh - nh, 0);
-        tries++;
-      } while (tries < 30 && x < yr.l + yr.w + 10 && x + nw > yr.l - 10 && y < yr.t + yr.h + 10 && y + nh > yr.t - 10);
-      no.style.left = x + "px"; no.style.top = y + "px";
+      hop();
       taunt.textContent = mouseTaunts[Math.min(S.noAttempts - 1, mouseTaunts.length - 1)];
       grow();
     }
@@ -317,13 +321,6 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       noScale = Math.max(noScale - .1, .55);
       no.style.transform = `scale(${noScale})`;
       grow();
-      // on touch, also hop to a new spot sometimes so it's harder to hit
-      if (S.noAttempts >= 3) {
-        no.classList.add("runaway");
-        const bw = box.clientWidth, nw = no.offsetWidth;
-        no.style.left = Math.random() * Math.max(bw - nw, 0) + "px";
-        no.style.top = (Math.random() > .5 ? 0 : box.clientHeight - no.offsetHeight) + "px";
-      }
     }
 
     // Mouse: the button flees before the cursor reaches it.
@@ -503,24 +500,35 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
     const d = dog("happy"); d.style.width = "120px";
     wrap.querySelector(".dogslot").appendChild(d);
     const saveBtn = wrap.querySelector("#saveImg");
+    let shot = null;
+    async function shareShot() {
+      if (navigator.canShare && navigator.canShare({ files: [shot.file] })) {
+        try { await navigator.share({ files: [shot.file] }); saveBtn.textContent = "Saved 💕"; }
+        catch (e) { if (e.name !== "AbortError") saveBtn.textContent = "Tap again to save 📸"; }
+      } else if (S.device === "mouse") {
+        const a = document.createElement("a"); a.href = shot.url; a.download = shot.file.name; a.click();
+        saveBtn.textContent = "Saved 💕";
+      } else {
+        saveBtn.textContent = "Press and hold the image 👇";
+      }
+    }
     saveBtn.addEventListener("click", async () => {
+      if (shot) return shareShot(); // second tap: share right away (iOS needs a fresh tap)
       saveBtn.disabled = true; saveBtn.textContent = "Making your ticket…";
       try {
         const canvas = await html2canvas(card, { scale: 2, backgroundColor: "#fffafb",
-          onclone: (doc) => { const st = doc.createElement("style"); st.textContent = "*{animation:none!important;transition:none!important}"; doc.head.appendChild(st); } });
+          onclone: (doc) => {
+            const st = doc.createElement("style"); st.textContent = "*{animation:none!important;transition:none!important}"; doc.head.appendChild(st);
+            // the SVG is drawn as a standalone image, so remove the hidden face parts
+            doc.querySelectorAll(".dog *").forEach(n => { if (doc.defaultView.getComputedStyle(n).display === "none") n.remove(); });
+          } });
         const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
-        const file = new File([blob], "date-with-joonas.png", { type: "image/png" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          try { await navigator.share({ files: [file], title: "Date confirmation 💌" }); }
-          catch (e) { if (e.name !== "AbortError") throw e; }
-        } else {
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
-        }
-        // also show the image, so press-and-hold works in in-app browsers
-        wrap.querySelector("#savedImg").src = canvas.toDataURL("image/png");
+        if (!blob) throw new Error("toBlob");
+        shot = { file: new File([blob], "date-with-joonas.png", { type: "image/png" }), url: canvas.toDataURL("image/png") };
+        wrap.querySelector("#savedImg").src = shot.url;
         wrap.querySelector("#savedWrap").hidden = false;
-        saveBtn.textContent = "Saved 💕";
+        saveBtn.disabled = false;
+        await shareShot();
       } catch (e) {
         saveBtn.disabled = false; saveBtn.textContent = "Save the confirmation 📸";
         noteEl.textContent = "Couldn't make the image. A screenshot works too 📸";
