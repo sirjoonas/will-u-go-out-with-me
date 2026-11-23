@@ -349,7 +349,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
     yes.addEventListener("click", sayYes);
     return wrap;
   }
-  function sayYes() { confetti(); save("💖 Anna said YES!"); go(1); }
+  function sayYes() { confetti(); go(1); }
 
   // ---------- step 1: surprised ----------
   function stepSurprised() {
@@ -408,7 +408,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       check();
     });
     check();
-    next.onclick = () => { save("📅 Anna picked a day"); go(3); };
+    next.onclick = () => { go(3); };
     return wrap;
   }
 
@@ -455,7 +455,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       next.disabled = false;
     });
     next.disabled = !S.food;
-    next.onclick = () => { S.foodNote = note.value.trim(); save("🍜 Anna picked the food"); go(4); };
+    next.onclick = () => { S.foodNote = note.value.trim(); go(4); };
     return wrap;
   }
 
@@ -469,7 +469,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       <p class="hand">dress code: whatever makes you smile 💐</p>
       <button class="btn" type="button" id="ok">OK, I accept</button>
     </section>`);
-    wrap.querySelector("#ok").onclick = () => { S.accepted = true; confetti(); save("✅ Anna confirmed the date!"); go(5); };
+    wrap.querySelector("#ok").onclick = () => { S.accepted = true; confetti(); save("💖 Anna said YES to a date!"); go(5); };
     return wrap;
   }
 
