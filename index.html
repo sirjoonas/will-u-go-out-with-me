@@ -137,7 +137,6 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
 .ticket { width: 100%; border: 2px dashed var(--cherry); border-radius: 18px; background: #fff; overflow: hidden; text-align: left; }
 .ticket-head { background: var(--cherry); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ticket-head b { font-family: var(--display); font-weight: 400; font-size: 1.2rem; }
-.ticket-head code { font-family: ui-monospace, Menlo, monospace; font-size: .85rem; background: rgba(255,255,255,.18); padding: 2px 8px; border-radius: 6px; }
 .ticket dl { margin: 0; padding: 14px 16px; display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; }
 .ticket dt { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 800; padding-top: 2px; }
 .ticket dd { margin: 0; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
@@ -197,7 +196,6 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
   const S = {
     noAttempts: 0, device: matchMedia("(hover: hover) and (pointer: fine)").matches ? "mouse" : "touch",
     day: null, dayLabel: null, time: null, food: null, foodNote: "", accepted: false,
-    ref: "DATE-" + Math.random().toString(36).slice(2, 6).toUpperCase(),
   };
   const card = document.getElementById("card");
   const dogTpl = document.getElementById("dogTpl");
@@ -216,7 +214,6 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       S.food ? `Food: ${S.food}` : "",
       S.foodNote ? `Note: ${S.foodNote}` : "",
       S.accepted ? "Status: ACCEPTED, booking confirmed" : "",
-      `Ref: ${S.ref}`,
     ].filter(Boolean).join("\n");
   }
   async function sendBooking() {
@@ -329,15 +326,21 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       }
     }
 
-    // mouse: flee before the cursor arrives
+    // Mouse: the button flees before the cursor reaches it.
+    // Touch/pen/keyboard: each press runs tapNo(). The pointer type is taken from
+    // pointerdown, because iOS Safari doesn't report it reliably on click.
+    let lastPointer = null;
     no.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") runAway(); });
-    no.addEventListener("pointerdown", (e) => { if (e.pointerType === "mouse") { e.preventDefault(); runAway(); } });
+    no.addEventListener("pointerdown", (e) => {
+      lastPointer = e.pointerType;
+      if (e.pointerType === "mouse") { e.preventDefault(); runAway(); }
+    });
     no.addEventListener("click", (e) => {
+      const wasMouse = lastPointer === "mouse";
+      lastPointer = null;
       if (no.textContent.startsWith("Yes")) return;
       e.preventDefault();
-      // touch, pen, or keyboard all land here
-      if (e.pointerType ? e.pointerType === "mouse" : (S.device === "mouse" && e.detail !== 0)) return; // mouse is handled on pointerdown
-      tapNo();
+      if (!wasMouse) tapNo();
     });
     yes.addEventListener("click", sayYes);
     return wrap;
@@ -472,7 +475,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       <span class="stamp">Confirmed</span>
       <h2>Booking confirmed</h2>
       <div class="ticket">
-        <div class="ticket-head"><b>One (1) date</b><code>${esc(S.ref)}</code></div>
+        <div class="ticket-head"><b>One (1) date</b></div>
         <dl>
           <dt>Date</dt><dd>${esc(S.dayLabel || "")}</dd>
           <dt>Pickup</dt><dd>${esc(S.time || "")}, at your door 🚗</dd>
@@ -506,7 +509,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
         const canvas = await html2canvas(card, { scale: 2, backgroundColor: "#fffafb",
           onclone: (doc) => { const st = doc.createElement("style"); st.textContent = "*{animation:none!important;transition:none!important}"; doc.head.appendChild(st); } });
         const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
-        const file = new File([blob], `date-with-joonas-${S.ref}.png`, { type: "image/png" });
+        const file = new File([blob], "date-with-joonas.png", { type: "image/png" });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try { await navigator.share({ files: [file], title: "Date confirmation 💌" }); }
           catch (e) { if (e.name !== "AbortError") throw e; }
