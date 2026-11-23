@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>body{margin:0}[hidden]{display:none!important}</style>
 <title>Anna, will you go out with me? 💌</title>
 <meta name="description" content="Joonas has a very important question for Anna Thuan 💌">
 <meta property="og:type" content="website">
@@ -83,7 +83,7 @@ p { margin: 0; max-width: 34ch; }
 .small { font-size: .85rem; color: var(--muted); }
 
 .dog { width: 170px; height: auto; max-width: 100%; }
-.dog .tongue, .dog .happy-eyes, .dog .blush-cheek { display: none; }
+.dog .tongue, .dog .happy-eyes { display: none; }
 .dog.happy .tongue, .dog.happy .happy-eyes { display: inline; }
 .dog.happy .open-eyes, .dog.happy .tear { display: none; }
 .dog .tear { display: none; }
@@ -102,12 +102,12 @@ button:focus-visible, .chip:focus-visible { outline: 3px solid var(--sky); outli
   background: var(--cherry); color: #fff; font-weight: 800; font-size: 1.1rem;
   padding: 14px 30px; border-radius: 999px;
   box-shadow: 0 6px 0 var(--cherry-deep);
-  transition: transform .15s, box-shadow .15s, font-size .25s, padding .25s;
+  transition: transform .15s, box-shadow .15s;
 }
 .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--cherry-deep); }
 .btn[disabled] { opacity: .45; cursor: not-allowed; }
 .btn.ghost { background: #fff; color: var(--cherry); border: 2px solid var(--line); box-shadow: 0 6px 0 var(--line); }
-#noBtn { transition: left .22s ease, top .22s ease, transform .2s, font-size .2s, padding .2s, opacity .2s; white-space: nowrap; }
+#noBtn { transition: left .22s ease, top .22s ease, transform .2s; max-width: 100%; }
 #noBtn.runaway { position: absolute; }
 .taunt { min-height: 1.6em; font-family: var(--hand); font-size: 1.35rem; color: var(--cherry); }
 
@@ -145,13 +145,6 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
 .stamp { font-family: var(--display); color: var(--cherry); border: 3px solid var(--cherry); border-radius: 10px; padding: 2px 12px; transform: rotate(-8deg); font-size: 1.2rem; display: inline-block; }
 .save-note { font-size: .8rem; color: var(--muted); }
 
-/* owner panel */
-.owner { position: relative; z-index: 1; max-width: 460px; margin: 22px auto 0; }
-.owner details { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 12px 16px; }
-.owner summary { cursor: pointer; font-weight: 800; color: var(--cherry); }
-.owner .resp { border-top: 1px solid var(--line); padding: 10px 0; font-size: .9rem; display: grid; gap: 2px; }
-.owner .resp:first-of-type { border-top: 0; }
-.owner .resp b { color: var(--ink); }
 
 .confetti { position: fixed; top: -20px; width: 10px; height: 14px; z-index: 5; pointer-events: none; animation: fall linear forwards; }
 @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
@@ -200,7 +193,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
 (() => {
   // ---------- state ----------
   const S = {
-    step: 0, noAttempts: 0, device: matchMedia("(hover: hover) and (pointer: fine)").matches ? "mouse" : "touch",
+    noAttempts: 0, device: matchMedia("(hover: hover) and (pointer: fine)").matches ? "mouse" : "touch",
     day: null, dayLabel: null, time: null, food: null, foodNote: "", accepted: false,
     ref: "DATE-" + Math.random().toString(36).slice(2, 6).toUpperCase(),
   };
@@ -212,7 +205,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
 
   // ---------- sending answers (push notification via ntfy.sh) ----------
   const NTFY_TOPIC = "date-xo96suhsu5y";
-  let sendChain = Promise.resolve(), sendOk = null;
+  let sent = Promise.resolve(false);
   function summary() {
     return [
       `Answer: YES (tried to press no ${S.noAttempts} time${S.noAttempts === 1 ? "" : "s"}, on ${S.device})`,
@@ -224,20 +217,17 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       `Ref: ${S.ref}`,
     ].filter(Boolean).join("\n");
   }
-  function save(title) {
-    const body = JSON.stringify({ topic: NTFY_TOPIC, title, message: summary(), tags: ["heart"], priority: S.accepted ? 5 : 4 });
-    sendChain = sendChain.then(async () => {
-      const tries = S.accepted ? 3 : 1;
-      for (let attempt = 0; attempt < tries; attempt++) {
-        try {
-          const r = await fetch("https://ntfy.sh/", { method: "POST", body, keepalive: true });
-          if (r.ok) { sendOk = true; return; }
-        } catch (e) {}
-        if (attempt < tries - 1) await new Promise(res => setTimeout(res, 600));
-      }
-      sendOk = false;
-    });
-    return sendChain;
+  async function sendBooking() {
+    const body = JSON.stringify({ topic: NTFY_TOPIC, title: "💖 Anna said YES to a date!", message: summary(), tags: ["heart"], priority: 5 });
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const ac = new AbortController(), timer = setTimeout(() => ac.abort(), 8000);
+      try {
+        const r = await fetch("https://ntfy.sh/", { method: "POST", body, keepalive: true, signal: ac.signal });
+        if (r.ok) return true;
+      } catch (e) {} finally { clearTimeout(timer); }
+      await new Promise(res => setTimeout(res, 700));
+    }
+    return false;
   }
 
   // ---------- floating hearts ----------
@@ -266,8 +256,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
     }
   }
 
-  function go(n) { S.step = n; render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
-  function render() { card.replaceChildren(steps[S.step]()); }
+  function go(n) { card.replaceChildren(steps[n]()); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   // ---------- step 0: the question ----------
   const mouseTaunts = ["nope, too slow 😌", "the button said no to no", "try again, I dare you", "wow, persistent. I like that", "it's literally running from you", "ok this is getting embarrassing (for you)", "just press yes 🥺"];
@@ -293,7 +282,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
     let yesScale = 1, noScale = 1;
 
     function grow() {
-      yesScale = Math.min(yesScale + .18, 2.1);
+      yesScale = Math.min(yesScale + .15, 1.7);
       yes.style.transform = `scale(${yesScale})`;
       d.classList.add("sad");
     }
@@ -320,8 +309,9 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       if (i >= touchTaunts.length - 1) {
         no.textContent = "Yes 💖";
         no.className = "btn";
+        no.style.transform = "none";
         no.onclick = (e) => { e.preventDefault(); sayYes(); };
-        taunt.textContent = "see? even the no button wants to go";
+        taunt.textContent = touchTaunts[touchTaunts.length - 1];
         return;
       }
       no.textContent = touchTaunts[i];
@@ -344,7 +334,8 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       if (no.textContent.startsWith("Yes")) return;
       e.preventDefault();
       // touch, pen, or keyboard all land here
-      if (S.device === "mouse" && e.detail !== 0) runAway(); else tapNo();
+      if (e.pointerType ? e.pointerType === "mouse" : (S.device === "mouse" && e.detail !== 0)) return; // mouse is handled on pointerdown
+      tapNo();
     });
     yes.addEventListener("click", sayYes);
     return wrap;
@@ -375,7 +366,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
   function stepWhen() {
     const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const mo = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const today = new Date();
     let days = "";
     for (let i = 1; i <= 12; i++) {
       const d = new Date(today); d.setDate(today.getDate() + i);
@@ -469,7 +460,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       <p class="hand">dress code: whatever makes you smile 💐</p>
       <button class="btn" type="button" id="ok">OK, I accept</button>
     </section>`);
-    wrap.querySelector("#ok").onclick = () => { S.accepted = true; confetti(); save("💖 Anna said YES to a date!"); go(5); };
+    wrap.querySelector("#ok").onclick = () => { S.accepted = true; confetti(); sent = sendBooking(); go(5); };
     return wrap;
   }
 
@@ -504,8 +495,8 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
     const noteEl = wrap.querySelector("#saveNote"), fb = wrap.querySelector("#fallback"), ta = wrap.querySelector("#msg");
     const msg = "💌 Date booking\n" + summary();
     ta.value = msg;
-    sendChain.then(() => {
-      if (sendOk) { noteEl.textContent = "Booking delivered. Joonas already knows. There's no escape now 😌"; return; }
+    sent.then((ok) => {
+      if (ok) { noteEl.textContent = "Booking delivered. Joonas already knows. There's no escape now 😌"; return; }
       noteEl.textContent = "Hmm, the internet ate your booking. Tap below and paste it to me on Instagram.";
       fb.hidden = false;
     });
@@ -516,7 +507,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
   }
 
   const steps = [stepAsk, stepSurprised, stepWhen, stepFood, stepPickup, stepConfirm];
-  render();
+  go(0);
 
 })();
 </script>
