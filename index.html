@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>Will you go out with me? 💌</title>
-<meta name="description" content="A very important question, just for you 💌">
+<title>Anna, will you go out with me? 💌</title>
+<meta name="description" content="Joonas has a very important question for Anna Thuan 💌">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="A Very Important Question">
-<meta property="og:title" content="Will you go out with me? 💌">
-<meta property="og:description" content="A very important question, just for you. The puppy is waiting for your answer 🐶">
+<meta property="og:title" content="Anna, will you go out with me? 💌">
+<meta property="og:description" content="Joonas has a very important question for you, Anna. The puppy is waiting for your answer 🐶">
 <meta property="og:url" content="https://sirjoonas.github.io/will-u-go-out-with-me/">
-<meta property="og:image" content="https://sirjoonas.github.io/will-u-go-out-with-me/og.png">
-<meta property="og:image:secure_url" content="https://sirjoonas.github.io/will-u-go-out-with-me/og.png">
+<meta property="og:image" content="https://sirjoonas.github.io/will-u-go-out-with-me/og-anna.png">
+<meta property="og:image:secure_url" content="https://sirjoonas.github.io/will-u-go-out-with-me/og-anna.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="A cute puppy asking: Will you go out with me?">
+<meta property="og:image:alt" content="A cute puppy asking: Anna, will you go out with me?">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Will you go out with me? 💌">
-<meta name="twitter:description" content="A very important question, just for you 🐶">
-<meta name="twitter:image" content="https://sirjoonas.github.io/will-u-go-out-with-me/og.png">
+<meta name="twitter:title" content="Anna, will you go out with me? 💌">
+<meta name="twitter:description" content="Joonas has a very important question for you, Anna 🐶">
+<meta name="twitter:image" content="https://sirjoonas.github.io/will-u-go-out-with-me/og-anna.png">
 <meta name="theme-color" content="#c2185b">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%8C%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -272,14 +272,15 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
 
   // ---------- step 0: the question ----------
   const mouseTaunts = ["nope, too slow 😌", "the button said no to no", "try again, I dare you", "wow, persistent. I like that", "it's literally running from you", "ok this is getting embarrassing (for you)", "just press yes 🥺"];
-  const touchTaunts = ["Are you sure? 🥺", "Really really sure?", "The puppy is crying now", "Think about the puppy", "Wrong button, try the big one", "You're breaking his little heart", "Last chance to be nice", "Ok fine, this one says yes too"];
+  const touchTaunts = ["Are you sure? 🥺", "Really really sure?", "The puppy is crying now", "Think about the puppy", "Wrong button, try the big one", "You're breaking Joonas's heart", "Last chance to be nice", "Ok fine, this one says yes too"];
 
   function stepAsk() {
     const wrap = el(`<section class="step">
       <div class="dogslot"></div>
       <span class="vi" lang="vi">Đi chơi với anh nhé?</span>
+      <p class="hand" style="color:var(--cherry)">Hey Anna Thuan 👋</p>
       <h1>Will you go out with me?</h1>
-      <p class="hand">no pressure. but also, the puppy is watching.</p>
+      <p class="hand">no pressure. but also, the puppy is watching. – Joonas</p>
       <div class="choices" id="choices">
         <button class="btn" id="yesBtn" type="button">Yes 💖</button>
         <button class="btn ghost" id="noBtn" type="button">No</button>
@@ -349,7 +350,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
     yes.addEventListener("click", sayYes);
     return wrap;
   }
-  function sayYes() { confetti(); save("💖 She said YES!"); go(1); }
+  function sayYes() { confetti(); save("💖 Anna said YES!"); go(1); }
 
   // ---------- step 1: surprised ----------
   function stepSurprised() {
@@ -360,7 +361,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
         : `You tried to press no ${S.noAttempts} times. That's dedication. Luckily the button had better taste than you.`;
     const wrap = el(`<section class="step">
       <div class="dogslot"></div>
-      <h2>Wait… you actually said yes?</h2>
+      <h2>Wait… Anna, you actually said yes?</h2>
       <p>I had a whole sad speech ready for the no. I practiced it in the mirror. Now I have to throw it away.</p>
       <p class="hand">${esc(lines)}</p>
       <p class="small">No take-backs. I've already told my mom. (I haven't. Yet.)</p>
@@ -408,7 +409,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       check();
     });
     check();
-    next.onclick = () => { save("📅 She picked a day"); go(3); };
+    next.onclick = () => { save("📅 Anna picked a day"); go(3); };
     return wrap;
   }
 
@@ -455,7 +456,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
       next.disabled = false;
     });
     next.disabled = !S.food;
-    next.onclick = () => { S.foodNote = note.value.trim(); save("🍜 She picked the food"); go(4); };
+    next.onclick = () => { S.foodNote = note.value.trim(); save("🍜 Anna picked the food"); go(4); };
     return wrap;
   }
 
@@ -463,12 +464,13 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
   function stepPickup() {
     const wrap = el(`<section class="step">
       <div class="car" aria-hidden="true">🚗</div>
-      <h2>Glad you didn't say no.</h2>
+      <h2>Glad you didn't say no, Anna.</h2>
       <p style="font-size:1.15rem">Be ready by <b>${esc(S.time || "6:00 pm")}</b> on <b>${esc(S.dayLabel || "the day")}</b>. I'm coming to get you.</p>
+      <p class="hand">– Joonas</p>
       <p class="hand">dress code: whatever makes you smile 💐</p>
       <button class="btn" type="button" id="ok">OK, I accept</button>
     </section>`);
-    wrap.querySelector("#ok").onclick = () => { S.accepted = true; confetti(); save("✅ Booking confirmed!"); go(5); };
+    wrap.querySelector("#ok").onclick = () => { S.accepted = true; confetti(); save("✅ Anna confirmed the date!"); go(5); };
     return wrap;
   }
 
@@ -484,13 +486,14 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
           <dt>Pickup</dt><dd>${esc(S.time || "")}, at your door 🚗</dd>
           <dt>Food</dt><dd>${esc(S.food || "")}</dd>
           ${S.foodNote ? `<dt>Notes</dt><dd>${esc(S.foodNote)}</dd>` : ""}
-          <dt>Guests</dt><dd>You + me (+ puppy, in spirit)</dd>
+          <dt>Guest</dt><dd>Anna Thuan</dd>
+          <dt>Driver</dt><dd>Joonas (+ puppy, in spirit)</dd>
           <dt>Status</dt><dd>Very excited</dd>
         </dl>
         <div class="fine">Non-refundable. Non-cancellable. Rescheduling allowed only for a really good reason, and only if you pick a new day right away.</div>
       </div>
       <div class="dogslot"></div>
-      <p class="hand">see you soon 💕</p>
+      <p class="hand">see you soon, Anna 💕 – Joonas</p>
       <p class="save-note" id="saveNote" aria-live="polite">Sending your booking to me…</p>
       <div id="fallback" class="field" hidden>
         <a class="btn" id="dm" href="https://ig.me/m/sirjoonas" target="_blank" rel="noopener" style="text-decoration:none;align-self:center">Send it on Instagram 💌</a>
@@ -503,7 +506,7 @@ textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
     const msg = "💌 Date booking\n" + summary();
     ta.value = msg;
     sendChain.then(() => {
-      if (sendOk) { noteEl.textContent = "Booking delivered. I already know. There's no escape now 😌"; return; }
+      if (sendOk) { noteEl.textContent = "Booking delivered. Joonas already knows. There's no escape now 😌"; return; }
       noteEl.textContent = "Hmm, the internet ate your booking. Tap below and paste it to me on Instagram.";
       fb.hidden = false;
     });
