@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>A Very Important Question</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Nunito:wght@400;600;800&family=Caveat:wght@600&display=swap">
+<style>
+/* Layout: one love-letter card centered on a blush ground; each step swaps in place. Single committed look (no dark variant). */
+:root {
+  --blush: #ffe3ea;
+  --blush-2: #ffd0dc;
+  --card: #fffafb;
+  --cherry: #c2185b;
+  --cherry-deep: #8e1046;
+  --ink: #3b1f2b;
+  --muted: #8a6573;
+  --sky: #5aa9e6;
+  --line: #f3c3d1;
+  --display: "Shrikhand", "Georgia", serif;
+  --body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --hand: "Caveat", "Comic Sans MS", cursive;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: var(--blush);
+  background-image: radial-gradient(circle at 20% 10%, var(--blush-2) 0 120px, transparent 121px),
+                    radial-gradient(circle at 85% 90%, var(--blush-2) 0 160px, transparent 161px);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 40px;
+  overflow-x: hidden;
+}
+.hearts { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.hearts span { position: absolute; bottom: -40px; color: var(--cherry); opacity: .18; animation: floatUp linear infinite; }
+@keyframes floatUp { to { transform: translateY(-115vh) rotate(25deg); } }
+
+.card {
+  position: relative; z-index: 1;
+  max-width: 460px; margin: 0 auto;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 28px;
+  box-shadow: 0 18px 40px -18px rgba(142, 16, 70, .35);
+  padding: 28px 22px 26px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  text-align: center;
+}
+.step { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; animation: pop .45s cubic-bezier(.2,1.4,.4,1); }
+@keyframes pop { from { transform: scale(.94); opacity: .4; } to { transform: none; opacity: 1; } }
+
+h1, h2 { font-family: var(--display); font-weight: 400; color: var(--cherry); margin: 0; line-height: 1.15; text-wrap: balance; }
+h1 { font-size: clamp(1.9rem, 7vw, 2.4rem); }
+h2 { font-size: clamp(1.5rem, 6vw, 1.9rem); }
+p { margin: 0; max-width: 34ch; }
+.hand { font-family: var(--hand); font-size: 1.45rem; color: var(--muted); line-height: 1.2; }
+.vi { font-family: var(--hand); font-size: 1.35rem; color: var(--sky); }
+.small { font-size: .85rem; color: var(--muted); }
+
+.dog { width: 170px; height: auto; max-width: 100%; }
+.dog .tongue, .dog .happy-eyes, .dog .blush-cheek { display: none; }
+.dog.happy .tongue, .dog.happy .happy-eyes { display: inline; }
+.dog.happy .open-eyes, .dog.happy .tear { display: none; }
+.dog .tear { display: none; }
+.dog.sad .tear { display: inline; }
+.dog .ear-l { transform-origin: 62px 58px; }
+.dog .ear-r { transform-origin: 138px 58px; }
+.dog.happy .ear-l { animation: wiggleL .5s ease-in-out infinite alternate; }
+.dog.happy .ear-r { animation: wiggleR .5s ease-in-out infinite alternate; }
+@keyframes wiggleL { to { transform: rotate(-10deg); } }
+@keyframes wiggleR { to { transform: rotate(10deg); } }
+
+.choices { position: relative; width: 100%; min-height: 130px; display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; }
+button { font: inherit; cursor: pointer; border: 0; }
+button:focus-visible, .chip:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
+.btn {
+  background: var(--cherry); color: #fff; font-weight: 800; font-size: 1.1rem;
+  padding: 14px 30px; border-radius: 999px;
+  box-shadow: 0 6px 0 var(--cherry-deep);
+  transition: transform .15s, box-shadow .15s, font-size .25s, padding .25s;
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--cherry-deep); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.btn.ghost { background: #fff; color: var(--cherry); border: 2px solid var(--line); box-shadow: 0 6px 0 var(--line); }
+#noBtn { transition: left .22s ease, top .22s ease, transform .2s, font-size .2s, padding .2s, opacity .2s; white-space: nowrap; }
+#noBtn.runaway { position: absolute; }
+.taunt { min-height: 1.6em; font-family: var(--hand); font-size: 1.35rem; color: var(--cherry); }
+
+.days { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.times, .foods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.chip {
+  background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 10px 6px;
+  color: var(--ink); font-weight: 600; font-size: .95rem; line-height: 1.2;
+  transition: transform .12s, background .12s, border-color .12s;
+}
+.chip small { display: block; font-weight: 400; color: var(--muted); font-size: .75rem; }
+.chip .big { display: block; font-family: var(--display); font-size: 1.3rem; color: var(--cherry); font-weight: 400; }
+.chip:hover { transform: translateY(-2px); }
+.chip[aria-pressed="true"] { background: var(--cherry); border-color: var(--cherry); color: #fff; }
+.chip[aria-pressed="true"] small, .chip[aria-pressed="true"] .big { color: #fff; }
+.foods .chip { text-align: left; padding: 10px 12px; display: flex; gap: 10px; align-items: center; }
+.foods .chip .emo { font-size: 1.5rem; }
+.label { font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 800; align-self: flex-start; }
+.field { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+textarea { width: 100%; font: inherit; border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; resize: vertical; min-height: 56px; color: var(--ink); background: #fff; }
+textarea:focus { outline: 3px solid var(--sky); outline-offset: 1px; }
+
+.car { font-size: 3.4rem; animation: drive 2.4s ease-in-out infinite; display: inline-block; }
+@keyframes drive { 0% { transform: translateX(-60px) scaleX(-1); } 50% { transform: translateX(60px) scaleX(-1); } 50.01% { transform: translateX(60px); } 100% { transform: translateX(-60px); } }
+
+/* ticket */
+.ticket { width: 100%; border: 2px dashed var(--cherry); border-radius: 18px; background: #fff; overflow: hidden; text-align: left; }
+.ticket-head { background: var(--cherry); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ticket-head b { font-family: var(--display); font-weight: 400; font-size: 1.2rem; }
+.ticket-head code { font-family: ui-monospace, Menlo, monospace; font-size: .85rem; background: rgba(255,255,255,.18); padding: 2px 8px; border-radius: 6px; }
+.ticket dl { margin: 0; padding: 14px 16px; display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; }
+.ticket dt { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 800; padding-top: 2px; }
+.ticket dd { margin: 0; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.ticket .fine { border-top: 2px dashed var(--line); padding: 10px 16px 14px; font-size: .8rem; color: var(--muted); }
+.stamp { font-family: var(--display); color: var(--cherry); border: 3px solid var(--cherry); border-radius: 10px; padding: 2px 12px; transform: rotate(-8deg); font-size: 1.2rem; display: inline-block; }
+.save-note { font-size: .8rem; color: var(--muted); }
+
+/* owner panel */
+.owner { position: relative; z-index: 1; max-width: 460px; margin: 22px auto 0; }
+.owner details { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 12px 16px; }
+.owner summary { cursor: pointer; font-weight: 800; color: var(--cherry); }
+.owner .resp { border-top: 1px solid var(--line); padding: 10px 0; font-size: .9rem; display: grid; gap: 2px; }
+.owner .resp:first-of-type { border-top: 0; }
+.owner .resp b { color: var(--ink); }
+
+.confetti { position: fixed; top: -20px; width: 10px; height: 14px; z-index: 5; pointer-events: none; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="hearts" id="hearts" aria-hidden="true"></div>
+
+<main class="card" id="card"></main>
+
+<template id="dogTpl">
+<svg class="dog" viewBox="0 0 200 180" role="img" aria-label="A puppy">
+  <ellipse cx="100" cy="168" rx="58" ry="8" fill="#f3c3d1"/>
+  <path class="ear-l" d="M52 50 C28 52 20 98 34 120 C44 132 60 118 64 98 C68 78 70 52 52 50Z" fill="#8a5a3c"/>
+  <path class="ear-r" d="M148 50 C172 52 180 98 166 120 C156 132 140 118 136 98 C132 78 130 52 148 50Z" fill="#8a5a3c"/>
+  <ellipse cx="100" cy="92" rx="54" ry="56" fill="#e8b98c"/>
+  <ellipse cx="100" cy="118" rx="34" ry="26" fill="#fff3e6"/>
+  <path d="M84 40 C90 52 110 52 116 40 C110 34 90 34 84 40Z" fill="#fff3e6"/>
+  <g class="open-eyes">
+    <ellipse cx="78" cy="88" rx="11" ry="13" fill="#2a1a20"/>
+    <ellipse cx="122" cy="88" rx="11" ry="13" fill="#2a1a20"/>
+    <circle cx="82" cy="83" r="4.5" fill="#fff"/>
+    <circle cx="126" cy="83" r="4.5" fill="#fff"/>
+    <circle cx="75" cy="93" r="2" fill="#fff"/>
+    <circle cx="119" cy="93" r="2" fill="#fff"/>
+  </g>
+  <g class="happy-eyes" fill="none" stroke="#2a1a20" stroke-width="4.5" stroke-linecap="round">
+    <path d="M68 90 Q78 78 88 90"/>
+    <path d="M112 90 Q122 78 132 90"/>
+  </g>
+  <path class="tear" d="M70 102 C66 110 68 116 72 116 C76 116 77 110 70 102Z" fill="#5aa9e6"/>
+  <ellipse cx="62" cy="108" rx="9" ry="5" fill="#f4a3b5" opacity=".8"/>
+  <ellipse cx="138" cy="108" rx="9" ry="5" fill="#f4a3b5" opacity=".8"/>
+  <ellipse cx="100" cy="108" rx="10" ry="7" fill="#2a1a20"/>
+  <path d="M100 115 L100 122 M100 122 Q92 130 86 124 M100 122 Q108 130 114 124" fill="none" stroke="#2a1a20" stroke-width="3" stroke-linecap="round"/>
+  <path class="tongue" d="M93 126 Q93 142 100 142 Q107 142 107 126Z" fill="#f06c8b"/>
+  <path d="M100 30 C96 24 88 26 90 33 C92 38 100 42 100 42 C100 42 108 38 110 33 C112 26 104 24 100 30Z" fill="#c2185b"/>
+</svg>
+</template>
+
+<script>
+(() => {
+  // ---------- state ----------
+  const S = {
+    step: 0, noAttempts: 0, device: matchMedia("(hover: hover) and (pointer: fine)").matches ? "mouse" : "touch",
+    day: null, dayLabel: null, time: null, food: null, foodNote: "", accepted: false,
+    ref: "DATE-" + Math.random().toString(36).slice(2, 6).toUpperCase(),
+  };
+  const card = document.getElementById("card");
+  const dogTpl = document.getElementById("dogTpl");
+  const dog = (mood) => { const n = dogTpl.content.firstElementChild.cloneNode(true); if (mood) n.classList.add(mood); return n; };
+  const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  // ---------- sending answers (push notification via ntfy.sh) ----------
+  const NTFY_TOPIC = "date-xo96suhsu5y";
+  let sendChain = Promise.resolve(), sendOk = null;
+  function summary() {
+    return [
+      `Answer: YES (tried to press no ${S.noAttempts} time${S.noAttempts === 1 ? "" : "s"}, on ${S.device})`,
+      S.dayLabel ? `Day: ${S.dayLabel}` : "",
+      S.time ? `Pickup: ${S.time}` : "",
+      S.food ? `Food: ${S.food}` : "",
+      S.foodNote ? `Note: ${S.foodNote}` : "",
+      S.accepted ? "Status: ACCEPTED, booking confirmed" : "",
+      `Ref: ${S.ref}`,
+    ].filter(Boolean).join("\n");
+  }
+  function save(title) {
+    const body = JSON.stringify({ topic: NTFY_TOPIC, title, message: summary(), tags: ["heart"], priority: S.accepted ? 5 : 4 });
+    sendChain = sendChain.then(async () => {
+      const tries = S.accepted ? 3 : 1;
+      for (let attempt = 0; attempt < tries; attempt++) {
+        try {
+          const r = await fetch("https://ntfy.sh/", { method: "POST", body, keepalive: true });
+          if (r.ok) { sendOk = true; return; }
+        } catch (e) {}
+        if (attempt < tries - 1) await new Promise(res => setTimeout(res, 600));
+      }
+      sendOk = false;
+    });
+    return sendChain;
+  }
+
+  // ---------- floating hearts ----------
+  const hearts = document.getElementById("hearts");
+  for (let i = 0; i < 14; i++) {
+    const s = document.createElement("span");
+    s.textContent = "♥";
+    s.style.left = Math.random() * 100 + "%";
+    s.style.fontSize = 14 + Math.random() * 26 + "px";
+    s.style.animationDuration = 10 + Math.random() * 14 + "s";
+    s.style.animationDelay = -Math.random() * 20 + "s";
+    hearts.appendChild(s);
+  }
+  function confetti() {
+    const colors = ["#c2185b", "#5aa9e6", "#ffb3c6", "#ffd166", "#8e1046"];
+    for (let i = 0; i < 60; i++) {
+      const c = document.createElement("div");
+      c.className = "confetti";
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.background = colors[i % colors.length];
+      c.style.animationDuration = 1.6 + Math.random() * 1.8 + "s";
+      c.style.animationDelay = Math.random() * .4 + "s";
+      c.style.borderRadius = Math.random() > .5 ? "50%" : "2px";
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }
+  }
+
+  function go(n) { S.step = n; render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  function render() { card.replaceChildren(steps[S.step]()); }
+
+  // ---------- step 0: the question ----------
+  const mouseTaunts = ["nope, too slow 😌", "the button said no to no", "try again, I dare you", "wow, persistent. I like that", "it's literally running from you", "ok this is getting embarrassing (for you)", "just press yes 🥺"];
+  const touchTaunts = ["Are you sure? 🥺", "Really really sure?", "The puppy is crying now", "Think about the puppy", "Wrong button, try the big one", "You're breaking his little heart", "Last chance to be nice", "Ok fine, this one says yes too"];
+
+  function stepAsk() {
+    const wrap = el(`<section class="step">
+      <div class="dogslot"></div>
+      <span class="vi" lang="vi">Đi chơi với anh nhé?</span>
+      <h1>Will you go out with me?</h1>
+      <p class="hand">no pressure. but also, the puppy is watching.</p>
+      <div class="choices" id="choices">
+        <button class="btn" id="yesBtn" type="button">Yes 💖</button>
+        <button class="btn ghost" id="noBtn" type="button">No</button>
+      </div>
+      <div class="taunt" id="taunt" aria-live="polite"></div>
+    </section>`);
+    const d = dog();
+    wrap.querySelector(".dogslot").appendChild(d);
+    const yes = wrap.querySelector("#yesBtn"), no = wrap.querySelector("#noBtn"),
+          box = wrap.querySelector("#choices"), taunt = wrap.querySelector("#taunt");
+    let yesScale = 1, noScale = 1;
+
+    function grow() {
+      yesScale = Math.min(yesScale + .18, 2.1);
+      yes.style.transform = `scale(${yesScale})`;
+      d.classList.add("sad");
+    }
+    function runAway() {
+      S.noAttempts++;
+      no.classList.add("runaway");
+      const bw = box.clientWidth, bh = box.clientHeight;
+      const nw = no.offsetWidth, nh = no.offsetHeight;
+      const yr = { l: yes.offsetLeft, t: yes.offsetTop, w: yes.offsetWidth, h: yes.offsetHeight };
+      let x, y, tries = 0;
+      do {
+        x = Math.random() * Math.max(bw - nw, 0);
+        y = Math.random() * Math.max(bh - nh, 0);
+        tries++;
+      } while (tries < 30 && x < yr.l + yr.w + 10 && x + nw > yr.l - 10 && y < yr.t + yr.h + 10 && y + nh > yr.t - 10);
+      no.style.left = x + "px"; no.style.top = y + "px";
+      taunt.textContent = mouseTaunts[Math.min(S.noAttempts - 1, mouseTaunts.length - 1)];
+      grow();
+    }
+    function tapNo() {
+      S.noAttempts++;
+      const i = S.noAttempts - 1;
+      taunt.textContent = "";
+      if (i >= touchTaunts.length - 1) {
+        no.textContent = "Yes 💖";
+        no.className = "btn";
+        no.onclick = (e) => { e.preventDefault(); sayYes(); };
+        taunt.textContent = "see? even the no button wants to go";
+        return;
+      }
+      no.textContent = touchTaunts[i];
+      noScale = Math.max(noScale - .1, .55);
+      no.style.transform = `scale(${noScale})`;
+      grow();
+      // on touch, also hop to a new spot sometimes so it's harder to hit
+      if (S.noAttempts >= 3) {
+        no.classList.add("runaway");
+        const bw = box.clientWidth, nw = no.offsetWidth;
+        no.style.left = Math.random() * Math.max(bw - nw, 0) + "px";
+        no.style.top = (Math.random() > .5 ? 0 : box.clientHeight - no.offsetHeight) + "px";
+      }
+    }
+
+    // mouse: flee before the cursor arrives
+    no.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") runAway(); });
+    no.addEventListener("pointerdown", (e) => { if (e.pointerType === "mouse") { e.preventDefault(); runAway(); } });
+    no.addEventListener("click", (e) => {
+      if (no.textContent.startsWith("Yes")) return;
+      e.preventDefault();
+      // touch, pen, or keyboard all land here
+      if (S.device === "mouse" && e.detail !== 0) runAway(); else tapNo();
+    });
+    yes.addEventListener("click", sayYes);
+    return wrap;
+  }
+  function sayYes() { confetti(); save("💖 She said YES!"); go(1); }
+
+  // ---------- step 1: surprised ----------
+  function stepSurprised() {
+    const lines = S.noAttempts === 0
+      ? "You didn't even try the no button. Straight to yes. I'm blushing."
+      : S.noAttempts < 4
+        ? `You tried the no button ${S.noAttempts} time${S.noAttempts > 1 ? "s" : ""}. I saw that. I'm choosing to forgive you.`
+        : `You tried to press no ${S.noAttempts} times. That's dedication. Luckily the button had better taste than you.`;
+    const wrap = el(`<section class="step">
+      <div class="dogslot"></div>
+      <h2>Wait… you actually said yes?</h2>
+      <p>I had a whole sad speech ready for the no. I practiced it in the mirror. Now I have to throw it away.</p>
+      <p class="hand">${esc(lines)}</p>
+      <p class="small">No take-backs. I've already told my mom. (I haven't. Yet.)</p>
+      <button class="btn" type="button">Haha ok, what's next?</button>
+    </section>`);
+    wrap.querySelector(".dogslot").appendChild(dog("happy"));
+    wrap.querySelector("button").onclick = () => go(2);
+    return wrap;
+  }
+
+  // ---------- step 2: when ----------
+  function stepWhen() {
+    const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const mo = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    let days = "";
+    for (let i = 1; i <= 12; i++) {
+      const d = new Date(today); d.setDate(today.getDate() + i);
+      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const label = `${wd[d.getDay()]} ${d.getDate()} ${mo[d.getMonth()]}`;
+      const sel = S.day === iso;
+      days += `<button type="button" class="chip" data-day="${iso}" data-label="${label}" aria-pressed="${sel}"><small>${wd[d.getDay()]}</small><span class="big">${d.getDate()}</span><small>${mo[d.getMonth()]}</small></button>`;
+    }
+    const times = [["5:00 pm", "early bird"], ["6:00 pm", "the classic"], ["7:00 pm", "fashionably late"], ["8:00 pm", "night owl"]];
+    const timeHtml = times.map(([t, s]) => `<button type="button" class="chip" data-time="${t}" aria-pressed="${S.time === t}">${t}<small>${s}</small></button>`).join("");
+    const wrap = el(`<section class="step">
+      <h2>When are you free?</h2>
+      <p class="hand">pick a day. any day. I'll clear my very busy schedule (it's empty).</p>
+      <div class="field"><span class="label">Day</span><div class="days" id="days">${days}</div></div>
+      <div class="field"><span class="label">Time</span><div class="times" id="times">${timeHtml}</div></div>
+      <button class="btn" type="button" id="next" disabled>That's the one</button>
+    </section>`);
+    const next = wrap.querySelector("#next");
+    const check = () => { next.disabled = !(S.day && S.time); };
+    wrap.querySelector("#days").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-day]"); if (!b) return;
+      S.day = b.dataset.day; S.dayLabel = b.dataset.label;
+      wrap.querySelectorAll("[data-day]").forEach(x => x.setAttribute("aria-pressed", x === b));
+      check();
+    });
+    wrap.querySelector("#times").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-time]"); if (!b) return;
+      S.time = b.dataset.time;
+      wrap.querySelectorAll("[data-time]").forEach(x => x.setAttribute("aria-pressed", x === b));
+      check();
+    });
+    check();
+    next.onclick = () => { save("📅 She picked a day"); go(3); };
+    return wrap;
+  }
+
+  // ---------- step 3: food ----------
+  const FOODS = [
+    ["🍜", "Phở", "the comfort classic"],
+    ["🥢", "Bún chả", "grilled pork, all the herbs"],
+    ["🥖", "Bánh mì", "+ a little street-food crawl"],
+    ["🍲", "Lẩu (hotpot)", "we cook, we talk, we spill"],
+    ["🍣", "Sushi", "fancy-ish"],
+    ["🥩", "Korean BBQ", "I'll do the grilling"],
+    ["🍝", "Pasta & pizza", "the safe bet"],
+    ["🍧", "Dessert first", "chè, bingsu, cake. no rules"],
+  ];
+  function stepFood() {
+    const opts = FOODS.map(([e, n, s]) => `<button type="button" class="chip" data-food="${n}" aria-pressed="${S.food === n}"><span class="emo" aria-hidden="true">${e}</span><span>${n}<small>${s}</small></span></button>`).join("");
+    const wrap = el(`<section class="step">
+      <h2>What are we feeling?</h2>
+      <p class="hand">choose wisely. I will be judging (I won't, I'm just happy to be there).</p>
+      <div class="foods" id="foods">${opts}</div>
+      <button type="button" class="chip" data-food="You choose, surprise me" aria-pressed="${S.food === "You choose, surprise me"}" style="width:100%">🎁 You choose, surprise me<small>bold move. I respect it.</small></button>
+      <div class="field">
+        <label class="label" for="note">Anything I should know? (optional)</label>
+        <textarea id="note" maxlength="300" placeholder="e.g. no coriander, extra chili, I'm always cold…"></textarea>
+      </div>
+      <p class="hint small" id="hint" aria-live="polite"></p>
+      <button class="btn" type="button" id="next" disabled>Yum, next</button>
+    </section>`);
+    const hint = wrap.querySelector("#hint"), next = wrap.querySelector("#next"), note = wrap.querySelector("#note");
+    note.value = S.foodNote;
+    const hints = {
+      "Phở": "Good choice. I've been practicing saying it right. (It's \"fuh\", right? Right??)",
+      "Bún chả": "Obama-approved. And now you-approved.",
+      "Bánh mì": "Bread with crunch. A woman of culture.",
+      "Lẩu (hotpot)": "Perfect. Hotpot takes hours, so you're stuck with me.",
+      "Dessert first": "Honestly? Marry me. (Joking. Mostly.)",
+      "You choose, surprise me": "Pressure's on. I won't let you down.",
+    };
+    wrap.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-food]"); if (!b) return;
+      S.food = b.dataset.food;
+      wrap.querySelectorAll("[data-food]").forEach(x => x.setAttribute("aria-pressed", x === b));
+      hint.textContent = hints[S.food] || "Noted. Excellent taste, as expected.";
+      next.disabled = false;
+    });
+    next.disabled = !S.food;
+    next.onclick = () => { S.foodNote = note.value.trim(); save("🍜 She picked the food"); go(4); };
+    return wrap;
+  }
+
+  // ---------- step 4: pickup ----------
+  function stepPickup() {
+    const wrap = el(`<section class="step">
+      <div class="car" aria-hidden="true">🚗</div>
+      <h2>Glad you didn't say no.</h2>
+      <p style="font-size:1.15rem">Be ready by <b>${esc(S.time || "6:00 pm")}</b> on <b>${esc(S.dayLabel || "the day")}</b>. I'm coming to get you.</p>
+      <p class="hand">dress code: whatever makes you smile 💐</p>
+      <button class="btn" type="button" id="ok">OK, I accept</button>
+    </section>`);
+    wrap.querySelector("#ok").onclick = () => { S.accepted = true; confetti(); save("✅ Booking confirmed!"); go(5); };
+    return wrap;
+  }
+
+  // ---------- step 5: confirmation ----------
+  function stepConfirm() {
+    const wrap = el(`<section class="step">
+      <span class="stamp">Confirmed</span>
+      <h2>Booking confirmed</h2>
+      <div class="ticket">
+        <div class="ticket-head"><b>One (1) date</b><code>${esc(S.ref)}</code></div>
+        <dl>
+          <dt>Date</dt><dd>${esc(S.dayLabel || "")}</dd>
+          <dt>Pickup</dt><dd>${esc(S.time || "")}, at your door 🚗</dd>
+          <dt>Food</dt><dd>${esc(S.food || "")}</dd>
+          ${S.foodNote ? `<dt>Notes</dt><dd>${esc(S.foodNote)}</dd>` : ""}
+          <dt>Guests</dt><dd>You + me (+ puppy, in spirit)</dd>
+          <dt>Status</dt><dd>Very excited</dd>
+        </dl>
+        <div class="fine">Non-refundable. Non-cancellable. Rescheduling allowed only for a really good reason, and only if you pick a new day right away.</div>
+      </div>
+      <div class="dogslot"></div>
+      <p class="hand">see you soon 💕</p>
+      <p class="save-note" id="saveNote" aria-live="polite">Sending your booking to me…</p>
+      <div id="fallback" class="field" hidden>
+        <a class="btn" id="dm" href="https://ig.me/m/sirjoonas" target="_blank" rel="noopener" style="text-decoration:none;align-self:center">Send it on Instagram 💌</a>
+        <label class="label" for="msg">Your booking message</label><textarea id="msg" readonly rows="6"></textarea>
+      </div>
+    </section>`);
+    const d = dog("happy"); d.style.width = "120px";
+    wrap.querySelector(".dogslot").appendChild(d);
+    const noteEl = wrap.querySelector("#saveNote"), fb = wrap.querySelector("#fallback"), ta = wrap.querySelector("#msg");
+    const msg = "💌 Date booking\n" + summary();
+    ta.value = msg;
+    sendChain.then(() => {
+      if (sendOk) { noteEl.textContent = "Booking delivered. I already know. There's no escape now 😌"; return; }
+      noteEl.textContent = "Hmm, the internet ate your booking. Tap below and paste it to me on Instagram.";
+      fb.hidden = false;
+    });
+    wrap.querySelector("#dm").addEventListener("click", () => {
+      try { navigator.clipboard.writeText(msg).catch(() => { ta.focus(); ta.select(); }); } catch { ta.focus(); ta.select(); }
+    });
+    return wrap;
+  }
+
+  const steps = [stepAsk, stepSurprised, stepWhen, stepFood, stepPickup, stepConfirm];
+  render();
+
+})();
+</script>
+</body>
+</html>
